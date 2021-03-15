@@ -2,6 +2,7 @@ using System.Collections;
 using System.Runtime;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -9,6 +10,7 @@ using UnityEngine.Video;
 public class Controller : MonoBehaviour
 {
     //Panels
+    public Camera cam;
     public VideoPlayer videoPlayer;
     public GameObject window;
     //Input fields
@@ -51,7 +53,8 @@ public class Controller : MonoBehaviour
             all_hotspots = load();
             loaded = true;
         }
-        if(packageManager.GetComponent<PackageManager>().mainVideo_ready && loaded){
+        if(packageManager.GetComponent<PackageManager>().mainVideo_ready && loaded && !fileManager.GetComponent<FileManager>().on_second)
+        {
             inner_update();
         }
     }
@@ -107,10 +110,24 @@ public class Controller : MonoBehaviour
         id_display.GetComponent<Text>().text = id;
         Hotspot h = (Hotspot)all_hotspots[id];
         loadHotspot(h);
+        goToHotspot(h);
         videoPlayer.Pause();
     }
+
+    public void goToHotspot(Hotspot hs)
+    {
+        double hs_start_time = hs.getStart();
+        videoPlayer.Prepare();
+        Debug.Log(videoPlayer.frameCount);
+        Debug.Log(videoPlayer.frameRate);
+        long location_frame = Convert.ToInt64(hs_start_time / (videoPlayer.frameCount / videoPlayer.frameRate)* videoPlayer.frameCount)+5;
+        videoPlayer.frame = location_frame;
+        Debug.Log(location_frame);
+        cam.transform.LookAt(hs.getHotspot().transform);
+    }
+
     public void loadHotspot(Hotspot hs){
-        start_time.GetComponent<Text>().text = hs.getStart().ToString();
+        start_time.GetComponent<Text>().text = "Start At: "+hs.getStart().ToString();
         nameinputField.GetComponent<InputField>().text = hs.getName();
         Debug.Log(hs.getName());
         textInputField.GetComponent<InputField>().text = hs.getText();
