@@ -43,3 +43,11 @@ The following packages were 已添加:
   com.unity.textmeshpro@2.1.1
   com.unity.timeline@1.2.17
   com.unity.ugui@1.0.0
+
+=== Sat Mar 20 12:52:08 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were 已更新:
+  com.unity.ide.vscode 从版本 1.2.2 到 1.2.3

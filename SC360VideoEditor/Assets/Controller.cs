@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Runtime;
-using System.Collections.Generic;
+using System.IO.Compression;
 using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,21 +19,23 @@ public class Controller : MonoBehaviour
     public GameObject hotspot;
     
     public Window_Graph window_Graph;
+    public TimelineController timelineController;
     
     public string current_id;
 
-    private bool ready_to_load;
+    public bool ready_to_load;
 
     private Hashtable all_hotspots;
     private bool hotspots_loaded;
    
     void Start()
     {
-        window_Graph.MainBranch();
+        Debug.Log(statusController.getPath());
     }
 
     void Update(){
-        if(videoPlayer.isPrepared && (videoPlayer.length != 0))
+
+        if (videoPlayer.isPrepared && (videoPlayer.length != 0))
         {
             addingAndViewingHotspots();
         }
@@ -46,7 +48,7 @@ public class Controller : MonoBehaviour
         if (hotspots_loaded){ checkHotspotValidity();}
     }
 
-    public void please_load() { ready_to_load = true; }
+    public void please_load() { ready_to_load = true; Debug.Log("please load"); }
 
     void addingAndViewingHotspots()
     {
@@ -59,8 +61,11 @@ public class Controller : MonoBehaviour
             a.name = a.GetInstanceID().ToString();
             all_hotspots.Add(a.name, new Hotspot(a, start_time,videoPlayer.length));
             a.SetActive(true);
-            window_Graph.CreateDotConnection(new Vector2((float)((videoPlayer.time/videoPlayer.length)*1850+100), 150),new Vector2((float)((videoPlayer.time/videoPlayer.length)*1850+100)+100,150+100),a.GetInstanceID().ToString());
-            window_Graph.CreateCircle(new Vector2((float)((videoPlayer.time/videoPlayer.length)*1850+100)+100,150+100),a.GetInstanceID().ToString()+"c");
+            //window_Graph.CreateDotConnection(new Vector2((float)((videoPlayer.time/videoPlayer.length)*1850+100), 150),new Vector2((float)((videoPlayer.time/videoPlayer.length)*1850+100)+100,150+100),a.GetInstanceID().ToString());
+            //window_Graph.CreateCircle(new Vector2((float)((videoPlayer.time/videoPlayer.length)*1850+100)+100,150+100),a.GetInstanceID().ToString()+"c");
+            window_Graph.ClearGraph();
+            window_Graph.MainBranch("main");
+            timelineController.draw(statusController.getPath(), 150, 100, 100, 1950);
         }
 
         //View hotspot on left click
@@ -93,6 +98,13 @@ public class Controller : MonoBehaviour
                 h.getHotspot().SetActive(true);
             }
         }
+    }
+
+    public void recordBranch(string id)
+    {
+        Hotspot current_hotspot = (Hotspot)all_hotspots[id];
+        current_hotspot.SetBranch();
+        all_hotspots[id] = current_hotspot;
     }
 
     public void openWindow(string id) {      
@@ -160,17 +172,9 @@ public class Controller : MonoBehaviour
         List<String> needs_removed = new List<string>();
         foreach (DictionaryEntry entry in all_hotspots)
         {
-            needs_removed.Add(entry.Key.ToString());
-        }
-
-        GameObject[] objs = GameObject.FindGameObjectsWithTag("Trigger");
-        foreach (GameObject button in objs)
-        {
-            string id = button.GetInstanceID().ToString();
-            if (needs_removed.Contains(id))
-            {
-                delete_hotspot(id);
-            }
+            Hotspot h = (Hotspot)all_hotspots[entry.Key.ToString()];
+            GameObject a = h.getHotspot();
+            Destroy(a);
         }
         all_hotspots.Clear();
     }
@@ -205,7 +209,6 @@ public class Controller : MonoBehaviour
             this.name = name;
             this.text = text;
             this.url_photo = url_photo;
-            //this.url_video = url_video;
         }
         public double getStart()
         {
@@ -247,9 +250,11 @@ public class Controller : MonoBehaviour
             if (!url_photo.Equals("Photo path here.") && url_photo != null){ 
                 this.url_photo = url_photo;
             }
-            //if (!url_video.Equals("Video path here.")) { 
-            //    this.url_video = url_video;
-            //}     
+        }
+
+        public void SetBranch()
+        {
+            this.url_video = this.name;
         }
     }
     
@@ -302,6 +307,7 @@ public class Controller : MonoBehaviour
     {
         all_hotspots = new Hashtable();
         string json_path = System.IO.Path.Combine(statusController.getPath(), "hotspots.json");
+        Debug.Log(json_path);
         if (File.Exists(json_path))
         {
             string hotspotjsons = File.ReadAllText(json_path);
@@ -310,13 +316,19 @@ public class Controller : MonoBehaviour
             {
                 HotspotData h1 = JsonUtility.FromJson<HotspotData>(json);
                 GameObject a = Instantiate(hotspot, h1.worldPosition, h1.rot);
+                a.name = a.GetInstanceID().ToString();
                 all_hotspots.Add(a.GetInstanceID().ToString(), new Hotspot(a, h1.start_time, h1.end_time, h1.name, h1.text, h1.url_photo, h1.url_video));
-                window_Graph.CreateDotConnection(new Vector2((float)((h1.start_time / videoPlayer.length) * 1850 + 100), 150), new Vector2((float)((h1.start_time / videoPlayer.length) * 1850 + 100) + 100, 250), a.GetInstanceID().ToString());
-                window_Graph.CreateCircle(new Vector2((float)((h1.start_time / videoPlayer.length) * 1850 + 100) + 100, 150 + 100), a.GetInstanceID().ToString() + "c");
+                //window_Graph.CreateDotConnection(new Vector2((float)((h1.start_time / videoPlayer.length) * 1850 + 100), 150), new Vector2((float)((h1.start_time / videoPlayer.length) * 1850 + 100) + 100, 250), a.GetInstanceID().ToString());
+                //window_Graph.CreateCircle(new Vector2((float)((h1.start_time / videoPlayer.length) * 1850 + 100) + 100, 150 + 100), a.GetInstanceID().ToString() + "c");
             }
             hotspots_loaded = true;
         }
     }
-
-    
+   
+    /*
+    public void loadCustom(string path) {
+        ZipFile.ExtractToDirectory(path, Path.GetDirectoryName(path));
+    }
+   
+   */
 }

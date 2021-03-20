@@ -51,6 +51,18 @@ public class VideoManager : MonoBehaviour
         videoPlayer.frame = aim_frame;
     }
 
+    public void loadVideoAtTime(double aim_time, string video_url)
+    {
+        loadVideo(video_url);
+        videoPlayer.frame = (long)(aim_time / videoPlayer.length * videoPlayer.frameCount);
+    }
+
+    public void goToPosinTime(double aim_time)
+    {
+        Debug.Log(videoPlayer.frameCount);
+        videoPlayer.frame = (long)(aim_time / videoPlayer.length * videoPlayer.frameCount);
+    }
+
     public void getVideo()
     {
         url = OpenFileBrowser("mp4");
