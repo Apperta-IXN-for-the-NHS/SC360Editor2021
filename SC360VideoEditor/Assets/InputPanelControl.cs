@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using System.IO;
 
+//File used to control the elements on the input panel.
 public class InputPanelControl : MonoBehaviour
 {
     //Controllers 
@@ -54,6 +55,7 @@ public class InputPanelControl : MonoBehaviour
         videoPlayer.Play();
     }
 
+    //Save information on the input panel to the hashtable in the controller.
     public void saveHotspotInfo() //Used by save button
     {
         string id = id_display.GetComponent<Text>().text;
@@ -84,6 +86,7 @@ public class InputPanelControl : MonoBehaviour
         }
 
         controller.update_hotspot(id, name, text, url_photo);
+        controller.renameBranch(id);
 
         nameinputField.GetComponent<InputField>().text = "";
         textInputField.GetComponent<InputField>().text = "";
@@ -92,6 +95,7 @@ public class InputPanelControl : MonoBehaviour
         closeWindow();
     }
 
+    //Load hotspot onto the input panel.
     public void loadHotspot(string id, string hot_name, string hot_text, string hot_url_photo)
     {
         id_display.GetComponent<Text>().text = id;

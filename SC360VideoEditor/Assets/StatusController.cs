@@ -36,7 +36,6 @@ public class StatusController : MonoBehaviour
 
     public string getName()
     {
-        Debug.Log(projectName);
         return projectName;
     }
 
@@ -50,12 +49,14 @@ public class StatusController : MonoBehaviour
         return projectPath != null || projectPath != "";
     }
 
+    //Add the set name and path to the displays.
     public void displayNameAndPath()
     {
         projectNameDisplay.GetComponent<Text>().text = projectName;
         projectPathDisplay.GetComponent<Text>().text = projectPath;
     }
 
+    //Used when switch from main video to branch.
     public void branch_out(string hotspot_name)
     {
         projectName = Path.Combine(projectName, hotspot_name);
@@ -63,6 +64,7 @@ public class StatusController : MonoBehaviour
         displayNameAndPath();
     }
 
+    //Used when switch to branch using nodes on the timeline.
     public void branch_into(string hotspot)
     {
         projectName = init_project_name + hotspot;
@@ -70,6 +72,7 @@ public class StatusController : MonoBehaviour
         displayNameAndPath();
     }
 
+    //Used when switch from branch to the main video.
     public void branch_back()
     {
         projectName = Path.GetDirectoryName(projectName);

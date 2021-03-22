@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
-
+//This file is used to make the editor to go to a sub-branch of the project when it's needed.
 public class BranchProject : MonoBehaviour
 {
     public InputPanelControl inputpanelcontrol;
@@ -28,23 +28,25 @@ public class BranchProject : MonoBehaviour
         backButton.SetActive(false);
     }
 
-    public void create_branch()
+    public void create_branch() // Used by the create branch button on the input panel.
     {
         string current_id = inputpanelcontrol.getCurrentID();
         string hotspot_name = inputpanelcontrol.getName();
         string project_Path = Path.Combine(statusController.getPath(), hotspot_name);
         Directory.CreateDirectory(project_Path);
         packageManager.create_SubElems(project_Path);
-        controller.recordBranch(current_id);
+        controller.recordBranch(current_id, hotspot_name);
+        warningController.displayErrorMessage("Branch named " + hotspot_name + " is created.");
     }
 
-    public void goToBranch()
+    public void goToBranch() // Used by the Go To Branch button on the input panel.
     {
         string hotspot_name = inputpanelcontrol.getName();
         floor_count++;
         //Store status data before branch
         prev_video_frame = videoManager.getFrame();
         prev_tramsform = controller.getTransformByID(inputpanelcontrol.getCurrentID());
+        inputpanelcontrol.saveHotspotInfo();
         controller.saveJson();
         videoManager.removeVideo();
         controller.removeAllHotspots();
@@ -53,16 +55,19 @@ public class BranchProject : MonoBehaviour
         statusController.branch_out(hotspot_name);
         string current_path = statusController.getPath();
         string mainVideo_path = Path.Combine(current_path, "MainVideo.mp4");
+        Debug.Log(mainVideo_path);
         if (File.Exists(mainVideo_path)){
             videoManager.loadVideo(mainVideo_path);
-        }else
+            controller.please_load();
+        }
+        else
         {
             warningController.displayErrorMessage("Please add a Main Video.");
         }
-        controller.please_load();
-        backButton.SetActive(true);
+        backButton.SetActive(true);   
     }
 
+    //Used when clicking on the node on the timeline.
     public void branchOutbyNode(string relative_path, Vector3 location, double start_time)
     {
         
@@ -70,7 +75,7 @@ public class BranchProject : MonoBehaviour
         Debug.Log(intendedPath);
         if(!intendedPath.Equals(statusController.getPath()))
         {
-            //controller.saveJson();
+            controller.saveJson();
             videoManager.removeVideo();
             controller.removeAllHotspots();
             statusController.branch_into(relative_path);
@@ -83,6 +88,7 @@ public class BranchProject : MonoBehaviour
         videoManager.goToPosinTime(start_time);
     }
 
+    //Used by the back button when goes from the branch to the main video.
     public void backPreviousBranch()
     {
         controller.saveJson();
