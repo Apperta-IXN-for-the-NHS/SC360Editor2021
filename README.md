@@ -6,7 +6,7 @@
 
 ## How to Run our executeable software
 - To run the build version, simply double click the **SC360.exe** in **EditorBuild** to open the editor and click **360Player.exe** in **PlayerBuild** to open the player. 
-- You can view the full user guide at (http://students.cs.ucl.ac.uk/2020/group11/UseGuide.html)
+- You can view the full user guide at http://students.cs.ucl.ac.uk/2020/group11/UseGuide.html
 
 ## How to Run our Source Code
 - **SC360VideoEditor** and **SC360Player**  are the source code of the editor and the player of our project. 
